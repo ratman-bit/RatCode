@@ -36,8 +36,11 @@ concurrency:
 jobs:
   build:
     name: Build Windows x64
-    runs-on: windows-2025
-    timeout-minutes: 90
+    # Upstream packages its Windows release on Linux as well: electron-builder
+    # produces the NSIS installer there, and cargo-xwin links the native helper
+    # against the MSVC runtime.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -67,6 +70,23 @@ jobs:
         shell: bash
         run: vp install --filter=t3... --filter=@t3tools/web... --filter=@t3tools/desktop... --filter=@t3tools/scripts...
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install cargo-xwin
+        uses: taiki-e/install-action@8cca0918f8471c33515202b73f56ab27f2bed283 # v2
+        with:
+          tool: cargo-xwin@0.23.1
+
+      # Built here so the desktop build can reuse it instead of running plain
+      # cargo, which cannot link an MSVC target on Linux.
+      - name: Build resource monitor
+        shell: bash
+        run: cargo xwin build --locked --release --manifest-path native/resource-monitor/Cargo.toml --target x86_64-pc-windows-msvc
+
       - name: Resolve version
         id: version
         shell: bash
@@ -81,6 +101,8 @@ jobs:
 
       - name: Build installer
         shell: bash
+        env:
+          T3CODE_DESKTOP_REUSE_RESOURCE_MONITOR: true
         run: |
           vp run dist:desktop:artifact \
             --platform win \
