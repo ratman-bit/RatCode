@@ -1,11 +1,11 @@
 name: Fork installer
 
-# Builds unsigned desktop installers from this fork. A manual run or an
-# `installer-v*` tag also attaches them to a release here.
+# Builds an unsigned Windows installer from this fork. A manual run or an
+# `installer-v*` tag also attaches it to a release here.
 #
 # The build keeps T3 Code's app id and data locations, so the installer replaces
 # an existing T3 Code install in place and the app finds the same settings,
-# threads and credentials. The update feed baked into each build is this
+# threads and credentials. The update feed baked into the build is this
 # repository (GITHUB_REPOSITORY), so the app never updates itself back to an
 # upstream release.
 
@@ -21,7 +21,7 @@ on:
       - "**"
     tags:
       - "installer-v*"
-    # A change to how installers are built rebuilds them without publishing.
+    # A change to how the installer is built rebuilds it without publishing.
     # Tag pushes ignore this filter.
     paths:
       - ".github/workflows/fork-installer.yml"
@@ -35,28 +35,9 @@ concurrency:
 
 jobs:
   build:
-    name: Build ${{ matrix.label }}
-    runs-on: ${{ matrix.runner }}
+    name: Build Windows x64
+    runs-on: windows-2025
     timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - label: Windows x64
-            runner: windows-2025
-            platform: win
-            target: nsis
-            arch: x64
-          - label: macOS arm64
-            runner: macos-15
-            platform: mac
-            target: dmg
-            arch: arm64
-          - label: Linux x64
-            runner: ubuntu-24.04
-            platform: linux
-            target: AppImage
-            arch: x64
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -86,16 +67,6 @@ jobs:
         shell: bash
         run: vp install --filter=t3... --filter=@t3tools/web... --filter=@t3tools/desktop... --filter=@t3tools/scripts...
 
-      - name: Install Linux desktop build libraries
-        if: matrix.platform == 'linux'
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libsecret-1-dev pkg-config libgtk-3-0t64 libnss3 libasound2t64 libgbm1
-          if ! command -v magick >/dev/null 2>&1 && ! command -v convert >/dev/null 2>&1; then
-            sudo apt-get install -y imagemagick
-          fi
-
       - name: Resolve version
         id: version
         shell: bash
@@ -112,9 +83,9 @@ jobs:
         shell: bash
         run: |
           vp run dist:desktop:artifact \
-            --platform "${{ matrix.platform }}" \
-            --target "${{ matrix.target }}" \
-            --arch "${{ matrix.arch }}" \
+            --platform win \
+            --target nsis \
+            --arch x64 \
             --build-version "${{ steps.version.outputs.version }}" \
             --output-dir release \
             --verbose
@@ -122,10 +93,10 @@ jobs:
       - name: Upload installer
         uses: actions/upload-artifact@v7
         with:
-          name: installer-${{ matrix.platform }}-${{ matrix.arch }}
+          name: installer-win-x64
           path: release/*
           if-no-files-found: error
-          # Installers are already compressed.
+          # The installer is already compressed.
           compression-level: 0
 
   publish:
@@ -137,12 +108,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Download installers
+      - name: Download installer
         uses: actions/download-artifact@v8
         with:
-          pattern: installer-*
+          name: installer-win-x64
           path: release
-          merge-multiple: true
 
       - name: Create release
         shell: bash
@@ -157,18 +127,13 @@ jobs:
             tag="installer-v${VERSION}-${GITHUB_RUN_NUMBER}"
           fi
           cat > notes.md <<'NOTES'
-          Unsigned installers built from this fork.
+          Unsigned Windows installer built from this fork.
 
-          Run the installer for your system over an existing T3 Code install. It replaces the
-          app and keeps your settings, threads and credentials, which live outside the app in
-          `~/.t3` and the app's profile folder.
+          Run the `.exe` over an existing T3 Code install. It replaces the app and keeps your
+          settings, threads and credentials, which live outside the app in `%USERPROFILE%\.t3`
+          and the app's profile folder.
 
-          - **Windows**: run the `.exe`. SmartScreen warns because the build is unsigned; choose
-            "More info", then "Run anyway".
-          - **macOS (Apple silicon)**: open the `.dmg` and drag the app over the old one. Then run
-            `xattr -dr com.apple.quarantine "/Applications/T3 Code (Beta).app"` once, because the
-            build is not notarized.
-          - **Linux**: replace your old `.AppImage` with this one and mark it executable.
+          SmartScreen warns because the build is unsigned; choose "More info", then "Run anyway".
           NOTES
           gh release create "$tag" release/* \
             --repo "$GITHUB_REPOSITORY" \
