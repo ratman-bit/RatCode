@@ -3,8 +3,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "~/lib/utils";
 
+// Material 3 Expressive toggle: a pill at rest that squares off once selected. Each size sets
+// --btn-h so the radius interpolates from a real length; `before` is the state layer.
+const morph =
+  "rounded-[calc(var(--btn-h)/2)] hover:rounded-[calc(var(--btn-h)*0.34)] active:rounded-[calc(var(--btn-h)*0.22)] data-pressed:rounded-[calc(var(--btn-h)*0.3)]";
+const pill = "rounded-[calc(var(--btn-h)/2)]";
+
 const toggleVariants = cva(
-  "[&_svg]:-mx-0.5 relative inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg border font-medium text-base text-foreground outline-none transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 hover:bg-accent focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-64 aria-disabled:opacity-64 data-pressed:bg-input/64 data-pressed:text-accent-foreground sm:text-sm [&_svg:not([class*='opacity-'])]:opacity-80 [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "[&_svg]:-mx-0.5 relative inline-flex h-(--btn-h) min-w-(--btn-h) shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap border font-medium text-base text-foreground outline-none [transition:border-radius_350ms_var(--ease-spatial-fast),background-color_150ms_var(--ease-effects-fast),color_150ms_var(--ease-effects-fast)] motion-reduce:transition-none before:pointer-events-none before:absolute before:-inset-px before:rounded-[inherit] before:bg-current before:opacity-0 before:transition-opacity before:duration-150 hover:before:opacity-8 active:before:opacity-12 pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-64 aria-disabled:opacity-64 data-pressed:bg-secondary data-pressed:text-secondary-foreground sm:text-sm [&_svg:not([class*='opacity-'])]:opacity-80 [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     defaultVariants: {
       size: "default",
@@ -13,23 +19,21 @@ const toggleVariants = cva(
     variants: {
       size: {
         compact:
-          "h-7 min-w-7 rounded-md px-[calc(--spacing(1)-1px)] text-xs before:rounded-[calc(var(--radius-md)-1px)] [&_svg:not([class*='size-'])]:size-3.5",
-        default: "h-9 min-w-9 px-[calc(--spacing(2)-1px)] sm:h-8 sm:min-w-8",
-        lg: "h-10 min-w-10 px-[calc(--spacing(2.5)-1px)] sm:h-9 sm:min-w-9",
-        segmented:
-          "h-6 min-w-0 rounded-md px-2.5 text-xs before:rounded-[calc(var(--radius-md)-1px)]",
-        sm: "h-8 min-w-8 px-[calc(--spacing(1.5)-1px)] sm:h-7 sm:min-w-7",
-        xs: "h-7 min-w-7 px-[calc(--spacing(1)-1px)] sm:h-6 sm:min-w-6 rounded-md",
+          "[--btn-h:--spacing(7)] px-[calc(--spacing(1)-1px)] text-xs [&_svg:not([class*='size-'])]:size-3.5",
+        default: "[--btn-h:--spacing(9)] px-[calc(--spacing(2)-1px)] sm:[--btn-h:--spacing(8)]",
+        lg: "[--btn-h:--spacing(10)] px-[calc(--spacing(2.5)-1px)] sm:[--btn-h:--spacing(9)]",
+        segmented: "[--btn-h:--spacing(7)] min-w-0 px-3 text-xs",
+        sm: "[--btn-h:--spacing(8)] px-[calc(--spacing(1.5)-1px)] sm:[--btn-h:--spacing(7)]",
+        xs: "[--btn-h:--spacing(7)] px-[calc(--spacing(1)-1px)] sm:[--btn-h:--spacing(6)]",
       },
       variant: {
-        default: "border-transparent",
-        pill: "border-transparent rounded-full px-3 font-normal text-muted-foreground data-pressed:text-foreground",
-        ghost:
-          "border-transparent text-foreground shadow-none [:disabled,:active,[data-pressed]]:shadow-none before:shadow-none data-pressed:bg-accent data-pressed:text-accent-foreground disabled:opacity-100 disabled:text-muted-foreground disabled:[&_svg]:opacity-100",
-        outline:
-          "border-input bg-background not-dark:bg-clip-padding shadow-xs/5 not-disabled:not-active:not-data-pressed:before:shadow-[0_1px_--theme(--color-black/4%)] dark:bg-input/32 dark:data-pressed:bg-input dark:hover:bg-input/64 dark:not-disabled:not-active:not-data-pressed:before:shadow-[0_-1px_--theme(--color-white/6%)] dark:not-disabled:not-data-pressed:before:shadow-[0_-1px_--theme(--color-white/2%)] [:disabled,:active,[data-pressed]]:shadow-none",
-        segmented:
-          "border-transparent text-muted-foreground shadow-none transition-colors before:shadow-none hover:bg-background/55 hover:text-foreground data-pressed:bg-background data-pressed:text-foreground data-pressed:shadow-xs/10 dark:hover:bg-input/32 dark:data-pressed:bg-input/72",
+        default: `${morph} border-transparent`,
+        pill: `${pill} border-transparent px-3 font-normal text-muted-foreground`,
+        ghost: `${morph} border-transparent text-foreground disabled:opacity-100 disabled:text-muted-foreground disabled:[&_svg]:opacity-100`,
+        outline: `${morph} border-input bg-transparent data-pressed:border-transparent`,
+        // Connected button group segment: small inner corners, full outer ends, and the
+        // selected segment springs back to a pill.
+        segmented: `rounded-xs border-transparent bg-input/40 text-muted-foreground first:rounded-s-[calc(var(--btn-h)/2)] last:rounded-e-[calc(var(--btn-h)/2)] hover:text-foreground data-pressed:rounded-[calc(var(--btn-h)/2)]`,
       },
     },
   },

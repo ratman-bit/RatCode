@@ -17,12 +17,13 @@ export function SettingsGroup({
       {...props}
       className={cn(
         "relative overflow-visible text-foreground",
-        variant === "grouped"
-          ? "rounded-xl border border-border/60 bg-card/40 shadow-xs/5"
-          : "space-y-1",
+        variant === "plain" && "space-y-1",
+        variant === "grouped" && !divided && "rounded-xl bg-card",
+        // Segmented list: each row is its own tonal card, 2px apart, and only the ends of the
+        // stack get large corners.
         variant === "grouped" &&
           divided &&
-          "[&>*+*]:border-t [&>*+*]:border-border/50 [&>[data-slot=settings-row]]:rounded-none",
+          "flex flex-col gap-0.5 [&>*]:rounded-xs [&>*]:bg-card [&>*:first-child]:rounded-t-xl [&>*:last-child]:rounded-b-xl",
         className,
       )}
     />

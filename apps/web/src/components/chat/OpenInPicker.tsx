@@ -21,7 +21,7 @@ import {
 import { useEnvironment } from "../../state/environments";
 import { ChevronDownIcon, FolderClosedIcon, SquareArrowOutUpRightIcon } from "lucide-react";
 
-import { Group, GroupSeparator } from "../ui/group";
+import { Group } from "../ui/group";
 import {
   Menu,
   MenuItem,
@@ -407,9 +407,7 @@ export const OpenInPicker = memo(function OpenInPicker({
       </ThreadDetailsControl>
       {isPanel ? (
         <span aria-hidden="true" className={THREAD_DETAILS_PANEL_SPLIT_SEPARATOR_CLASS} />
-      ) : (
-        <GroupSeparator {...(!compact ? { className: "hidden @3xl/header-actions:block" } : {})} />
-      )}
+      ) : null}
       <Menu open={menuOpen} onOpenChange={setMenuOpen}>
         <MenuTrigger
           disabled={isHostEditorDenied}

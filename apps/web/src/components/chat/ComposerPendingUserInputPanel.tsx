@@ -340,7 +340,7 @@ function OptionRadio({ checked }: { checked: boolean }) {
     <span
       aria-hidden
       className={cn(
-        "relative inline-flex size-4.5 shrink-0 items-center justify-center rounded-full border border-foreground/55 bg-background not-dark:bg-clip-padding sm:size-4 dark:bg-input/32",
+        "relative inline-flex size-4.5 shrink-0 items-center justify-center rounded-full border border-foreground/55 bg-background sm:size-4 dark:bg-input/32",
         checked ? "shadow-none" : "shadow-xs/5",
       )}
     >

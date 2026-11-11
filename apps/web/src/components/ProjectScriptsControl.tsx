@@ -29,7 +29,7 @@ import {
   type ProjectScriptEditorRequest,
 } from "./projectScriptEditor";
 import { Button } from "./ui/button";
-import { Group, GroupSeparator } from "./ui/group";
+import { Group } from "./ui/group";
 import {
   Menu,
   MenuGroup,
@@ -321,9 +321,7 @@ export default function ProjectScriptsControl({
           </Tooltip>
           {isPanel ? (
             <span aria-hidden="true" className={THREAD_DETAILS_PANEL_SPLIT_SEPARATOR_CLASS} />
-          ) : (
-            <GroupSeparator className="hidden @3xl/header-actions:block" />
-          )}
+          ) : null}
           <Menu
             open={actionsMenuOpen.scripts}
             onOpenChange={(open) =>
