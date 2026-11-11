@@ -1,0 +1,177 @@
+name: Fork installer
+
+# Builds unsigned desktop installers from this fork. A manual run or an
+# `installer-v*` tag also attaches them to a release here.
+#
+# The build keeps T3 Code's app id and data locations, so the installer replaces
+# an existing T3 Code install in place and the app finds the same settings,
+# threads and credentials. The update feed baked into each build is this
+# repository (GITHUB_REPOSITORY), so the app never updates itself back to an
+# upstream release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to stamp on the build. Defaults to apps/desktop/package.json."
+        required: false
+        type: string
+  push:
+    branches:
+      - "**"
+    tags:
+      - "installer-v*"
+    # A change to how installers are built rebuilds them without publishing.
+    # Tag pushes ignore this filter.
+    paths:
+      - ".github/workflows/fork-installer.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fork-installer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.label }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Windows x64
+            runner: windows-2025
+            platform: win
+            target: nsis
+            arch: x64
+          - label: macOS arm64
+            runner: macos-15
+            platform: mac
+            target: dmg
+            arch: arm64
+          - label: Linux x64
+            runner: ubuntu-24.04
+            platform: linux
+            target: AppImage
+            arch: x64
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      # checkout's credential cleanup runs submodule foreach even with
+      # submodules disabled, which fails on the orphaned gitlinks in the
+      # vendored .repos tree. The repository is public, so plain Git works.
+      - name: Checkout
+        shell: bash
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+          git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
+          git sparse-checkout set --no-cone '/*' '!/.repos/'
+          git checkout --detach FETCH_HEAD
+
+      - name: Setup Vite+
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
+        with:
+          node-version-file: package.json
+          cache: true
+          run-install: false
+
+      - name: Install dependencies
+        shell: bash
+        run: vp install --filter=t3... --filter=@t3tools/web... --filter=@t3tools/desktop... --filter=@t3tools/scripts...
+
+      - name: Install Linux desktop build libraries
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsecret-1-dev pkg-config libgtk-3-0t64 libnss3 libasound2t64 libgbm1
+          if ! command -v magick >/dev/null 2>&1 && ! command -v convert >/dev/null 2>&1; then
+            sudo apt-get install -y imagemagick
+          fi
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          version="${INPUT_VERSION:-}"
+          if [[ -z "$version" ]]; then
+            version="$(node -p 'require("./apps/desktop/package.json").version')"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build installer
+        shell: bash
+        run: |
+          vp run dist:desktop:artifact \
+            --platform "${{ matrix.platform }}" \
+            --target "${{ matrix.target }}" \
+            --arch "${{ matrix.arch }}" \
+            --build-version "${{ steps.version.outputs.version }}" \
+            --output-dir release \
+            --verbose
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: installer-${{ matrix.platform }}-${{ matrix.arch }}
+          path: release/*
+          if-no-files-found: error
+          # Installers are already compressed.
+          compression-level: 0
+
+  publish:
+    name: Publish release
+    needs: [build]
+    if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Download installers
+        uses: actions/download-artifact@v8
+        with:
+          pattern: installer-*
+          path: release
+          merge-multiple: true
+
+      - name: Create release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            tag="$GITHUB_REF_NAME"
+          else
+            tag="installer-v${VERSION}-${GITHUB_RUN_NUMBER}"
+          fi
+          cat > notes.md <<'NOTES'
+          Unsigned installers built from this fork.
+
+          Run the installer for your system over an existing T3 Code install. It replaces the
+          app and keeps your settings, threads and credentials, which live outside the app in
+          `~/.t3` and the app's profile folder.
+
+          - **Windows**: run the `.exe`. SmartScreen warns because the build is unsigned; choose
+            "More info", then "Run anyway".
+          - **macOS (Apple silicon)**: open the `.dmg` and drag the app over the old one. Then run
+            `xattr -dr com.apple.quarantine "/Applications/T3 Code (Beta).app"` once, because the
+            build is not notarized.
+          - **Linux**: replace your old `.AppImage` with this one and mark it executable.
+          NOTES
+          gh release create "$tag" release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Installer ${VERSION} (${GITHUB_SHA::7})" \
+            --notes-file notes.md
