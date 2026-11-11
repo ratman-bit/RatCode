@@ -234,6 +234,8 @@ html[data-mobile-composer-route-transition="true"]::view-transition-old(t3-mobil
   --color-zinc-25: oklch(99.2% 0 0);
   --animate-skeleton: skeleton 2.4s infinite;
   /* One-shot selection feedback: the mark pops with a spring and its stroke draws in. */
+  /* The drawer's active indicator springs in when a row becomes current. */
+  --animate-indicator-in: indicator-in 350ms var(--ease-spatial-fast);
   --animate-check-pop: check-pop 350ms var(--ease-spatial-fast) backwards;
   --animate-check-draw: check-draw 220ms var(--ease-effects) 60ms backwards;
   /* Duty-cycled indicator animations: long holds with stepped ramps, so the
@@ -310,6 +312,11 @@ html[data-mobile-composer-route-transition="true"]::view-transition-old(t3-mobil
   --radius-xl: calc(var(--radius) + 8px);
   --radius-2xl: calc(var(--radius) + 16px);
   --radius-3xl: calc(var(--radius) + 20px);
+  @keyframes indicator-in {
+    from {
+      scale: 0.94;
+    }
+  }
   @keyframes check-pop {
     from {
       scale: 0.4;
@@ -1276,9 +1283,8 @@ html[data-mobile-composer-route-transition="true"]::view-transition-old(t3-mobil
   --md-surface-container: #ebedfa;
   --md-surface-container-high: #e5e8f5;
   --md-surface-container-highest: #dfe2ef;
-  /* State layers: the content color at Material's hover and press opacities. */
+  /* State layer: the content color at Material's hover opacity. */
   --md-state-hover: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
-  --md-state-press: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
 
   --background: var(--md-surface);
   --app-chrome-background: var(--md-surface-container);
@@ -1340,7 +1346,7 @@ html[data-mobile-composer-route-transition="true"]::view-transition-old(t3-mobil
   --sidebar-muted-foreground: var(--muted-foreground);
   --sidebar-control-surface: var(--md-surface-container-highest);
   --sidebar-row-hover: var(--md-state-hover);
-  --sidebar-row-active: var(--md-state-press);
+  --sidebar-row-active: var(--md-secondary-container);
   --sidebar-row-selected: var(--md-secondary-container);
   --sidebar-border: var(--border);
   --sidebar-stage-fade: var(--sidebar);
