@@ -274,6 +274,19 @@ DMGs default to the host architecture. Use `--arch` to choose another target and
 to retain packaging files for inspection. Run `vp run dist:desktop:artifact --help` for other
 options.
 
+### Installers from a fork
+
+The release workflow only runs in the upstream repository. A fork builds installers with
+[`fork-installer.yml`](../../.github/workflows/fork-installer.yml): run it from the Actions tab, or
+push an `installer-v*` tag, and it attaches unsigned Windows, macOS and Linux installers to a
+release on the fork.
+
+A fork build is the same app as far as an existing install can tell. It keeps the app id, so the
+installer replaces the installed T3 Code, and it reads the same `~/.t3` home and profile folder,
+so settings and threads carry over. Its update feed is the fork (`GITHUB_REPOSITORY` at build
+time), so it never updates itself to an upstream release. It ships without upstream's signing and
+sign-in configuration and without the bundled WSL runtime.
+
 ### Prepared server bytecode
 
 Native macOS and Windows desktop artifact builds, and native Linux x64 and ARM64 builds, generate server
