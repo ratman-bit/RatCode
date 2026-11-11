@@ -6,7 +6,7 @@ const rootClassName =
   "relative inline-flex size-4.5 shrink-0 items-center justify-center rounded-[.25rem] border-2 border-muted-foreground/80 bg-transparent outline-none transition-[border-color,background-color] duration-150 data-checked:border-primary data-indeterminate:border-primary focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive/36 focus-visible:aria-invalid:border-destructive/64 focus-visible:aria-invalid:outline-destructive/48 data-disabled:opacity-64 sm:size-4 dark:focus-visible:aria-invalid:outline-destructive/24";
 
 const indicatorClassName =
-  "-inset-[2px] absolute flex items-center justify-center rounded-[.25rem] text-primary-foreground data-unchecked:hidden data-checked:bg-primary data-indeterminate:bg-primary in-[[data-slot=checkbox]:focus-visible]:inset-shadow-[0_0_0_3px_var(--background)] in-[[data-slot=checkbox]:focus-visible]:outline-2 in-[[data-slot=checkbox]:focus-visible]:outline-solid in-[[data-slot=checkbox]:focus-visible]:-outline-offset-2 in-[[data-slot=checkbox]:focus-visible]:outline-inherit";
+  "-inset-[2px] absolute flex items-center justify-center rounded-[.25rem] text-primary-foreground data-unchecked:hidden data-checked:animate-check-pop data-checked:bg-primary data-indeterminate:bg-primary [&_path]:animate-check-draw in-[[data-slot=checkbox]:focus-visible]:inset-shadow-[0_0_0_3px_var(--background)] in-[[data-slot=checkbox]:focus-visible]:outline-2 in-[[data-slot=checkbox]:focus-visible]:outline-solid in-[[data-slot=checkbox]:focus-visible]:-outline-offset-2 in-[[data-slot=checkbox]:focus-visible]:outline-inherit";
 
 const variantClassNames = {
   default: "",
@@ -45,7 +45,7 @@ function Checkbox({
                 width="24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path d="M5.252 12h13.496" />
+                <path d="M5.252 12h13.496" pathLength={1} />
               </svg>
             ) : (
               <svg
@@ -60,7 +60,7 @@ function Checkbox({
                 width="24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path d="M5.252 12.7 10.2 18.63 18.748 5.37" />
+                <path d="M5.252 12.7 10.2 18.63 18.748 5.37" pathLength={1} />
               </svg>
             )}
           </span>
@@ -99,7 +99,7 @@ function CheckboxMark({
           width="24"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path d="M5.252 12.7 10.2 18.63 18.748 5.37" />
+          <path d="M5.252 12.7 10.2 18.63 18.748 5.37" pathLength={1} />
         </svg>
       </span>
     </span>

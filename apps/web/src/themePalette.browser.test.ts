@@ -2,7 +2,7 @@ import { converter } from "culori/fn";
 import { describe, expect, it } from "vite-plus/test";
 
 import "~/index.css";
-import { getStandardPaintedThemeColors } from "./themePalette";
+import { getStandardThemeColors } from "./themePalette";
 
 const toRgb = converter("rgb");
 
@@ -21,13 +21,13 @@ function paintedChannels(variable: string, canvas: readonly number[] = [0, 0, 0]
   }
 }
 
-describe("standard painted theme colors", () => {
+describe("standard theme colors", () => {
   it("match the chip surfaces index.css paints", () => {
     const root = document.documentElement;
     try {
       for (const appearance of ["light", "dark"] as const) {
         root.classList.toggle("dark", appearance === "dark");
-        const colors = getStandardPaintedThemeColors(appearance);
+        const colors = getStandardThemeColors(appearance);
         const canvas = paintedChannels("--background");
         for (const [variable, role] of [
           ["--background", "canvas"],

@@ -43,8 +43,8 @@ const buttonVariants = cva(
         xs: "[--btn-h:--spacing(7)] gap-1 px-[calc(--spacing(2.5)-1px)] text-sm sm:[--btn-h:--spacing(6)] sm:text-xs [&_svg:not([class*='size-'])]:size-4 sm:[&_svg:not([class*='size-'])]:size-3.5",
       },
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground",
-        destructive: "border-transparent bg-destructive text-white",
+        default: "border-transparent bg-primary text-primary-foreground hover:shadow-elevation-1",
+        destructive: "border-transparent bg-destructive text-white hover:shadow-elevation-1",
         "destructive-outline": "border-input bg-transparent text-destructive-foreground",
         ghost:
           "[--control-icon-color:var(--contrast-muted-foreground)] border-transparent text-foreground",
@@ -62,7 +62,8 @@ const buttonVariants = cva(
         outline:
           "[--control-icon-color:var(--contrast-muted-foreground)] border-input bg-transparent text-foreground",
         overlay: "border-transparent bg-black/70 text-white/65",
-        secondary: "border-transparent bg-secondary text-secondary-foreground",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground hover:shadow-elevation-1",
         "warning-outline": "border-warning/32 bg-warning-surface text-warning-foreground",
       },
     },

@@ -6,28 +6,28 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
     />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#1c2029" />
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <script>
       (() => {
-        const LIGHT_BACKGROUND = "#ffffff";
-        const DARK_BACKGROUND = "#000000";
+        const LIGHT_BACKGROUND = "#ebedfa";
+        const DARK_BACKGROUND = "#1c2029";
         const CUSTOM_THEMES_STORAGE_KEY = "t3code:themes:v1";
         const THEME_FOLLOW_SYSTEM_STORAGE_KEY = "t3code:theme-follow-system";
         const THEME_APPEARANCE_MODE_STORAGE_KEY = "t3code:theme-appearance-mode";
         const THEME_HALVES_STORAGE_KEY = "t3code:theme-halves:v1";
         const SPLASH_COLORS = {
           light: {
-            background: "#ffffff",
-            foreground: "#262626",
-            accent: "#4f46e5",
+            background: "#ebedfa",
+            foreground: "#181c25",
+            accent: "#005ac1",
           },
           dark: {
-            background: "#000000",
-            foreground: "#f5f5f5",
-            accent: "#818cf8",
+            background: "#1c2029",
+            foreground: "#dfe2ef",
+            accent: "#adc6ff",
           },
         };
         // These are the runtime defaults used to complete a custom palette
@@ -121,6 +121,20 @@
               chrome: "oklch(0.225975 0.031062 293.741)",
             },
           },
+          pixel: {
+            light: {
+              background: "#f9f9ff",
+              foreground: "#1a1b20",
+              accent: "#445e91",
+              chrome: "#f9f9ff",
+            },
+            dark: {
+              background: "#111318",
+              foreground: "#e2e2e9",
+              accent: "#adc6ff",
+              chrome: "#111318",
+            },
+          },
         };
         const BUILT_IN_THEME_MODES = Object.fromEntries(
           Object.entries(BUILT_IN_THEME_PALETTES).map(([id, palettes]) => [
@@ -137,6 +151,7 @@
           "ocean",
           "ember",
           "iris",
+          "pixel",
           "t3-chat-dark",
           "t3-grove",
           "t3-ocean",
@@ -396,14 +411,14 @@
       }
 
       body {
-        background: #ffffff;
-        color: #262626;
+        background: #ebedfa;
+        color: #181c25;
         font-family: "Google Sans Flex Variable", "Google Sans", Roboto, system-ui, sans-serif;
       }
 
       html.dark body {
-        background: #000000;
-        color: #f5f5f5;
+        background: #1c2029;
+        color: #dfe2ef;
       }
 
       #boot-shell {
@@ -446,8 +461,8 @@
       }
 
       #boot-error {
-        --boot-error-fg: #262626;
-        --boot-error-bg: #ffffff;
+        --boot-error-fg: #181c25;
+        --boot-error-bg: #ebedfa;
         --boot-error-line: color-mix(in srgb, currentColor 12%, transparent);
         display: flex;
         flex-direction: column;
@@ -460,8 +475,8 @@
       }
 
       html.dark #boot-error {
-        --boot-error-fg: #f5f5f5;
-        --boot-error-bg: #000000;
+        --boot-error-fg: #dfe2ef;
+        --boot-error-bg: #1c2029;
       }
 
       html[data-theme-selected="true"] #boot-error {

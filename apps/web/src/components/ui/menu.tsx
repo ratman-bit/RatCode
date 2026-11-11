@@ -55,7 +55,7 @@ function MenuPopup({
       >
         <MenuPrimitive.Popup
           className={cn(
-            "dropdown-glass relative flex origin-(--transform-origin) rounded-lg shadow-elevation-2 outline-none focus:outline-none",
+            "dropdown-glass relative flex origin-(--transform-origin) rounded-lg shadow-elevation-2 outline-none focus:outline-none transition-[scale,opacity] duration-200 ease-spatial-fast motion-reduce:transition-none data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-98 data-ending-style:opacity-0",
             // Electron drag hit-testing ignores z-index; opt portaled menus out to keep overlapping rows
             // hoverable.
             "[-webkit-app-region:no-drag]",

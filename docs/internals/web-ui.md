@@ -21,6 +21,27 @@ Style with Tailwind classes in the component that renders the element.
   runtime are fine.
 - Theme-only rules use `@variant dark` and `@variant light`, not `.dark` selectors.
 
+## Material shape and motion
+
+The interface follows Material 3 Expressive. Three parts of that are easy to break without noticing.
+
+- **Colors are roles, not shades.** [`index.css`](../../apps/web/src/index.css) maps Material's
+  tonal roles onto the semantic tokens (`--card`, `--popover`, `--secondary`, `--accent`). Hover and
+  muted fills are translucent state layers, so they darken whatever surface they sit on. The standard
+  palette is repeated in [`themePalettes.ts`](../../packages/shared/src/themePalettes.ts) for the
+  theme editor, HTML rendering and mobile; a browser test fails when the two drift.
+- **A radius can only morph from a real length.** `rounded-full` is an infinite radius and does not
+  interpolate, so `Button` and `Toggle` set `--btn-h` per size and derive their pill, hover and press
+  radii from it. A new size sets `--btn-h` instead of a height class. Round controls that are not a
+  `Button` use the `shape-morph` utility, which works in percentages and so only suits equal sides.
+- **Icons move from one global rule set.** Lucide tags each glyph with its name, and `index.css`
+  animates them by that name inside any control: the gear turns, chevrons nudge, the send arrow
+  spins. The rules have zero specificity in the components layer, so a utility on the icon wins. A
+  glyph that is not a Lucide icon opts in with `data-icon-motion`.
+
+Every motion is one transition or a single keyframe run on hover, press or open. Nothing loops,
+because an animation that repaints while the window is idle costs GPU on every frame.
+
 ## Composition
 
 The composer banners are the reference.
